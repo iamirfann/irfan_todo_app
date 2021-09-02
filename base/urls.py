@@ -1,5 +1,8 @@
 from django.urls import path
-from .views import TaskList, TaskDetail, TaskCreate, TaskUpdate, DeleteView, CustomLoginView, RegisterPage, TaskReorder
+from .views import TaskList, TaskDetail, TaskCreate, TaskUpdate, DeleteView, \
+    CustomLoginView, RegisterPage, TaskReorder, \
+    TaskNameList, TaskNameReorder, TaskNameCreate, TaskNameUpdate
+
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
@@ -7,10 +10,16 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('register/', RegisterPage.as_view(), name='register'),
 
-    path('', TaskList.as_view(), name='tasks'),
+    path('task_list/<int:pk>/', TaskList.as_view(), name='tasks'),
     path('task/<int:pk>/', TaskDetail.as_view(), name='task'),
-    path('task-create/', TaskCreate.as_view(), name='task-create'),
+    path('task-create/<int:pk>/', TaskCreate.as_view(), name='task-create'),
     path('task-update/<int:pk>/', TaskUpdate.as_view(), name='task-update'),
     path('task-delete/<int:pk>/', DeleteView.as_view(), name='task-delete'),
     path('task-reorder/', TaskReorder.as_view(), name='task-reorder'),
+
+    # my urls,
+    path('', TaskNameList.as_view(), name='task-name'),
+    path('taskname-reorder/', TaskNameReorder.as_view(), name='taskname-reorder'),
+    path('taskname-create/', TaskNameCreate.as_view(), name='taskname-create'),
+    path('taskname-update/<int:pk>/', TaskNameUpdate.as_view(), name='taskname-update'),
 ]

@@ -14,7 +14,7 @@ from django.views import View
 from django.shortcuts import redirect
 from django.db import transaction
 
-from .models import Task
+from .models import Task, TaskName
 from .forms import PositionForm
 
 
@@ -24,7 +24,7 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        return reverse_lazy('tasks')
+        return reverse_lazy('task-name')
 
 
 class RegisterPage(FormView):
@@ -43,6 +43,11 @@ class RegisterPage(FormView):
         if self.request.user.is_authenticated:
             return redirect('tasks')
         return super(RegisterPage, self).get(*args, **kwargs)
+
+
+class TaskNameList(LoginRequiredMixin, ListView):
+    model = TaskName
+    context_object_name = 'taskname'
 
 
 class TaskList(LoginRequiredMixin, ListView):
@@ -71,11 +76,12 @@ class TaskDetail(LoginRequiredMixin, DetailView):
 
 class TaskCreate(LoginRequiredMixin, CreateView):
     model = Task
-    fields = ['title', 'description', 'complete']
-    success_url = reverse_lazy('tasks')
+    fields = ['title', 'description', 'complete', 'task_name']
+    success_url = reverse_lazy('task-name')
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        form.instance.task_name = TaskName.objects.get(pk=self.kwargs.get('pk'))
         return super(TaskCreate, self).form_valid(form)
 
 
@@ -93,6 +99,7 @@ class DeleteView(LoginRequiredMixin, DeleteView):
         owner = self.request.user
         return self.model.objects.filter(user=owner)
 
+
 class TaskReorder(View):
     def post(self, request):
         form = PositionForm(request.POST)
@@ -104,3 +111,34 @@ class TaskReorder(View):
                 self.request.user.set_task_order(positionList)
 
         return redirect(reverse_lazy('tasks'))
+
+# **************************     my changes    **************************
+
+
+class TaskNameReorder(View):
+    def post(self, request):
+        form = PositionForm(request.POST)
+
+        if form.is_valid():
+            positionList = form.cleaned_data["position"].split(',')
+
+            with transaction.atomic():
+                self.request.user.set_task_order(positionList)
+
+        return redirect(reverse_lazy('task-name'))
+
+
+class TaskNameCreate(LoginRequiredMixin, CreateView):
+    model = TaskName
+    fields = ['name']
+    success_url = reverse_lazy('task-name')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super(TaskNameCreate, self).form_valid(form)
+
+
+class TaskNameUpdate(LoginRequiredMixin, UpdateView):
+    model = TaskName
+    fields = ['name']
+    success_url = reverse_lazy('task-name')
