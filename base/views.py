@@ -53,10 +53,14 @@ class TaskNameList(LoginRequiredMixin, ListView):
 class TaskList(LoginRequiredMixin, ListView):
     model = Task
     context_object_name = 'tasks'
+    task_name_context = TaskName.objects.all()
 
     def get_context_data(self, **kwargs):
+        p = self.request
+        task_name_id = TaskName.objects.get(id=self.kwargs['pk'])
         context = super().get_context_data(**kwargs)
-        context['tasks'] = context['tasks'].filter(user=self.request.user)
+        context['task_name_context'] = task_name_id
+        context['tasks'] = context['tasks'].filter(user=self.request.user, task_name=self.kwargs['pk'])
         context['count'] = context['tasks'].filter(complete=False).count()
 
         search_input = self.request.GET.get('search-area') or ''
