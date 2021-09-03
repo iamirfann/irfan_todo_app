@@ -92,13 +92,13 @@ class TaskCreate(LoginRequiredMixin, CreateView):
 class TaskUpdate(LoginRequiredMixin, UpdateView):
     model = Task
     fields = ['title', 'description', 'complete']
-    success_url = reverse_lazy('tasks')
+    success_url = reverse_lazy('task-name')
 
 
 class DeleteView(LoginRequiredMixin, DeleteView):
     model = Task
     context_object_name = 'task'
-    success_url = reverse_lazy('tasks')
+    success_url = reverse_lazy('task-name')
     def get_queryset(self):
         owner = self.request.user
         return self.model.objects.filter(user=owner)
