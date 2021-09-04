@@ -8,7 +8,12 @@ class Task(models.Model):
         User, on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
-    complete = models.BooleanField(default=False)
+    module_choices = (
+        (0, "On-Progress"),
+        (1, "Not Completed"),
+        (2, "Completed"),
+    )
+    complete = models.CharField(max_length=10, choices=module_choices, default=0)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     task_name = models.ForeignKey('TaskName', models.CASCADE, null=True, blank=True, default='')
